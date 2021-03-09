@@ -16,8 +16,12 @@ export async function fetchProducts(per_page = 20, page = 1, search = "") {
     let response = await axios.get(`${BACKEND_API_URL}/products?page=${page}&per_page=${per_page}&search=${search}`)
     response = response.data;
     if (!response.status) {
-      isFail = true;
-      message += response.message;
+      response = await axios.get(`${BACKEND_API_URL}/products?page=${page}&per_page=${per_page}&search=${search}`)
+      response = response.data;
+      if (!response.status) {
+        isFail = true;
+        message += response.message;
+      }
     }
     const resData = response.data.content;
     return resData;
@@ -30,8 +34,12 @@ export async function fetchProduct(_id = 0) {
     let response = await axios.get(`${BACKEND_API_URL}/products/${_id}`)
     response = response.data;
     if (!response.status) {
-      isFail = true;
-      message += response.message;
+      response = await axios.get(`${BACKEND_API_URL}/products/${_id}`)
+      response = response.data;
+      if (!response.status) {
+        isFail = true;
+        message += response.message;
+      }
     }
     const resData = response.data;
     return resData;
@@ -44,8 +52,12 @@ export async function fetchProductCategories() {
     let response = await axios.get(`${BACKEND_API_URL}/categories`)
     response = response.data;
     if (!response.status) {
-      isFail = true;
-      message += response.message;
+      response = await axios.get(`${BACKEND_API_URL}/categories`)
+      response = response.data;
+      if (!response.status) {
+        isFail = true;
+        message += response.message;
+      }
     }
     const resData = response.data.content;
     return resData;
