@@ -4,9 +4,9 @@ import {
   Text,
   StyleSheet,
   Image,
-  TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { TouchableOpacity } from 'react-native-gesture-handler';
 //Icon
 import { AntDesign } from "@expo/vector-icons";
 //Colors
