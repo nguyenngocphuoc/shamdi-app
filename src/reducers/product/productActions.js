@@ -22,6 +22,7 @@ export async function fetchProducts(per_page = 20, page = 1, search = "") {
     const resData = response.data.content;
     return resData;
   } catch (err) {
+    console.log(err);
     throw err;
   }
 };
