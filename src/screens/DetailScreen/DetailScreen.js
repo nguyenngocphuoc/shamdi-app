@@ -52,7 +52,7 @@ export const DetailScreen = (props) => {
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
     }
-  }, [item, showFullScreen]);
+  }, [item._id, showFullScreen]);
   const onFullScreen = () => {
     setShowFullScreen(true);
   }

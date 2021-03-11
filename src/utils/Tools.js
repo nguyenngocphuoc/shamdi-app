@@ -7,7 +7,6 @@ import Colors from "./Colors";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import Constants from "expo-constants";
-import { STRIPE_PUBLISHABLE_KEY, API_URL } from "./Config";
 
 export const OpenURL = ({ url, children }) => {
   const handlePress = useCallback(async () => {
@@ -76,17 +75,17 @@ export const _pickImage = async (action) => {
     const type =
       action === "library"
         ? ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 4],
-            quality: 1,
-          })
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [4, 4],
+          quality: 1,
+        })
         : ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
-            aspect: [4, 4],
-            quality: 1,
-          });
+          mediaTypes: ImagePicker.MediaTypeOptions.All,
+          allowsEditing: true,
+          aspect: [4, 4],
+          quality: 1,
+        });
 
     let result = await type;
     return result;
@@ -128,7 +127,7 @@ export const getCreditCardToken = (creditCardData) => {
       // Use the correct Content Type to send data to Stripe
       "Content-Type": "application/x-www-form-urlencoded",
       // Use the Stripe publishable key as Bearer
-      Authorization: `Bearer ${STRIPE_PUBLISHABLE_KEY}`,
+      Authorization: `Bearer pk_test_51HLo2AD28q5Rme0eq3Q6J16dQEa0d38VoeY6ZJu8u3m1jzKcswvDmNkrNn6CqSCLv38tBNwdOOOKvLylPAPNYSpq00Vs0wQ3SV`,
     },
     // Use a proper HTTP method
     method: "post",
@@ -141,3 +140,28 @@ export const getCreditCardToken = (creditCardData) => {
     .then((response) => response.json())
     .catch((error) => console.log(error));
 };
+
+export const btoa = (input = '') => {
+  let str = input;
+  let output = '';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+  for (let block = 0, charCode, i = 0, map = chars;
+    str.charAt(i | 0) || (map = '=', i % 1);
+    output += map.charAt(63 & block >> 8 - i % 1 * 8)) {
+
+    charCode = str.charCodeAt(i += 3 / 4);
+
+    if (charCode > 0xFF) {
+      throw new Error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+    }
+
+    block = block << 8 | charCode;
+  }
+
+  return output;
+}
+
+export const isEmptyOrSpaces = (str) => {
+  if (!str) return false;
+  return str === null || str.match(/^ *$/) !== null;
+}
