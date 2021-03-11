@@ -130,12 +130,12 @@ export class Header extends React.Component {
       0,
       headerPlatform,
     );
-    const _header_translate_y = Animated.interpolate(_diff_clamp_scroll_y, {
+    const _header_translate_y = this.state.isFocused ? 0 : Animated.interpolate(_diff_clamp_scroll_y, {
       inputRange: [0, headerPlatform],
       outputRange: [0, -headerPlatform],
       extrapolate: 'clamp',
     });
-    const _header_opacity = Animated.interpolate(_diff_clamp_scroll_y, {
+    const _header_opacity = this.state.isFocused ? 1 : Animated.interpolate(_diff_clamp_scroll_y, {
       inputRange: [0, headerPlatform],
       outputRange: [1, 0],
       extrapolate: 'clamp',
