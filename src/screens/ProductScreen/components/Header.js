@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -26,6 +26,10 @@ const HEADER_MIN = 90;
 const HEADER_DISTANCE = HEADER_HEIGHT - HEADER_MIN;
 
 export const Header = ({ navigation, searchFilterFunction, scrollY }) => {
+  const [search, setSearch] = useState(null);
+  var onChangeText = (text) => {
+    setSearch(text);
+  }
   return (
     <>
       <View style={styles.topBar}>
@@ -40,12 +44,14 @@ export const Header = ({ navigation, searchFilterFunction, scrollY }) => {
           </TouchableOpacity>
         </View>
         <View style={styles.shareItem}>
-          <ShareItem
-            imageURL="https://www.facebook.com/daquyankhangthinhvuong/"
-            title="Share our facebook page"
-            message="Our Facebook Link"
-            color="black"
-          />
+          <TouchableOpacity
+            onPress={() => {
+              searchFilterFunction(search);
+            }}
+            style={styles.icon}
+          >
+            <Ionicons name="ios-search" size={25} color={Colors.white} />
+          </TouchableOpacity>
         </View>
         <Animated.View
           style={{
@@ -61,10 +67,10 @@ export const Header = ({ navigation, searchFilterFunction, scrollY }) => {
             style={[{ width: "100%", borderRadius: 5 }]}
           >
             <TextInput
-              placeholder="Tìm kiếm sản phẩm"
-              placeholderTextColor={Colors.white}
-              clearButtonMode="always"
-              onChangeText={(text) => searchFilterFunction(text)}
+              placeholder='Tìm kiếm sản phẩm'
+              clearButtonMode='always'
+              placeholderTextColor={Colors.grey}
+              onChangeText={(text) => onChangeText(text)}
               style={{
                 height: 40,
                 marginHorizontal: 20,

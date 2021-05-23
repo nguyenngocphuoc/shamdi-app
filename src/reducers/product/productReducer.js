@@ -50,7 +50,6 @@ export const productReducer = (state = initialState, action) => {
       data = state;
       break;
   }
-
   switch (action.product_detail) {
     case PRODUCT_DETAIL_LOADING:
       data["isProductDetailLoading"] = true;

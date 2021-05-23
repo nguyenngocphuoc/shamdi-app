@@ -12,7 +12,11 @@ const { height } = Dimensions.get("window");
 export const OrderScreen = ({ navigation }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const user = useSelector((state) => state.auth.user);
-  const orders = useSelector((state) => state.order.orders);
+  const orders = useSelector((state) => {
+    console.log(state.order);
+    return state.order.orders
+  });
+  console.log(orders);
   const dispatch = useDispatch();
   const loadOrders = useCallback(async () => {
     setIsRefreshing(true);

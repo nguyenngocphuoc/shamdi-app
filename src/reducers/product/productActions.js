@@ -1,5 +1,5 @@
-import { BACKEND_API_URL, BASIC_AUTH } from "../../utils/Config";
-import { isEmptyOrSpaces } from "../../utils/Tools";
+import { BACKEND_API_URL, BASIC_AUTH, DEFAULT_CATEGORY_IMAGE } from "../../utils/Config";
+import { isEmptyOrSpaces, variationsData } from "../../utils/Tools";
 const axios = require('axios')
 
 export const FETCH_PRODUCTS = "FETCH_PRODUCTS";
@@ -11,6 +11,17 @@ export const PRODUCT_DETAIL_FAILURE = "PRODUCT_DETAIL_FAILURE";
 export const FETCH_PRODUCT_DETAIL = "FETCH_PRODUCT_DETAIL";
 let isFail = false;
 let message = "";
+
+
+import * as firebase from 'firebase';
+
+// Initialize Firebase
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+}
+const cart = firebase.database().ref("test")
+
+
 export async function fetchProducts(per_page = 20, page = 1, search = "") {
   try {
     let data = {
@@ -19,7 +30,7 @@ export async function fetchProducts(per_page = 20, page = 1, search = "") {
       "pageSize": per_page,
       "content": []
     };
-    let response = await axios.get(`${BACKEND_API_URL}/products?page=${page}&per_page=${per_page}` + (isEmptyOrSpaces(search) ? `&search=${search}` : ""), {
+    let response = await axios.get(`${BACKEND_API_URL}/products?page=${page}&per_page=${per_page}` + (!isEmptyOrSpaces(search) ? `&search=${search}` : ""), {
       headers: { 'Authorization': BASIC_AUTH }
     })
     if (response.data) {
@@ -29,9 +40,11 @@ export async function fetchProducts(per_page = 20, page = 1, search = "") {
           "thumb": product.images[0].src,
           "images": product.images.map(({ src }) => src),
           "_id": product.id,
+          "permalink": product.permalink,
           "filename": product.name,
           "price": product.price,
           "color": "blue",
+          "attributes": product.attributes,
           "origin": "Việt Nam",
           "standard": "New",
           "description": product.short_description,
@@ -70,18 +83,24 @@ export async function fetchProduct(_id = 0) {
     let productReviewRes = await axios.get(`${BACKEND_API_URL}/products/reviews?product=${_id}`, {
       headers: { 'Authorization': BASIC_AUTH }
     })
+    let productVariationsRes = await axios.get(`${BACKEND_API_URL}/products/${_id}/variations`, {
+      headers: { 'Authorization': BASIC_AUTH }
+    })
     let response = { status: false, data, message: "Tải dữ liệu lỗi" }
     if (productRes.data) {
       const review = productReviewRes.data;
       const product = productRes.data;
+      const variations = productVariationsRes.data;
       data = {
         "url": product.images[0].src,
         "thumb": product.images[0].src,
         "images": product.images.map(({ src }) => src),
         "_id": product.id,
+        "permalink": product.permalink,
         "filename": product.name,
         "price": product.price,
         "color": "blue",
+        "attributes": product.attributes,
         "origin": "Việt Nam",
         "standard": "New",
         "description": product.short_description,
@@ -91,6 +110,8 @@ export async function fetchProduct(_id = 0) {
         "createdAt": product.date_created_gmt,
         "updatedAt": product.date_modified_gmt,
         "comments": review,
+        "variations": variations,
+        "variationsData": variationsData(variations),
         "__v": 0
       };
       response = { status: true, data, message: "ok" };
@@ -113,7 +134,7 @@ export async function fetchProductCategories() {
     let data = {
       "content": [{
         "id": "other",
-        "bg": "https://firebasestorage.googleapis.com/v0/b/dmc2019-236614.appspot.com/o/bg3.jpg?alt=media&token=6595c8fd-f777-48d9-8fad-43fa9e8acad4",
+        "bg": DEFAULT_CATEGORY_IMAGE,
         "name": "khác"
       }]
     };
@@ -121,7 +142,7 @@ export async function fetchProductCategories() {
       response.data.forEach(function (categories) {
         data.content.push({
           "id": categories.id,
-          "bg": categories.images && categories.images[0] ? categories.images[0].src : "https://firebasestorage.googleapis.com/v0/b/dmc2019-236614.appspot.com/o/bg3.jpg?alt=media&token=6595c8fd-f777-48d9-8fad-43fa9e8acad4",
+          "bg": categories.images && categories.images[0] ? categories.images[0].src : DEFAULT_CATEGORY_IMAGE,
           "name": categories.name
         })
       });

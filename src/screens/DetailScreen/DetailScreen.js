@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Dimensions, Animated, TouchableOpacity, BackHandler } from 'react-native';
+import { View, StyleSheet, Dimensions, Animated, TouchableOpacity, BackHandler, Text } from 'react-native';
 //Color
 import Colors from '../../utils/Colors';
 //Redux
@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 //Components
 import Snackbar from '../../components/Notification/Snackbar';
 // fetch
-import { fetchProductDetail } from '../../reducers';
+import { fetchProductDetail, fetchFavorite } from '../../reducers';
 // loading
 import Skeleton from '../../components/Loaders/SkeletonProductDetailLoading';
 //image slider
@@ -28,21 +28,29 @@ export const DetailScreen = (props) => {
   const scrollY = new Animated.Value(0);
   const user = useSelector((state) => state.auth.user);
   const product = useSelector((state) => state.store.product);
+  const favoriteList = useSelector((state) => state.fav.favoriteList);
   const isProductDetailLoading = useSelector((state) => state.store.isProductDetailLoading);
   let { item } = props.route.params;
   const [message, setMessage] = useState('');
+  //full screen
   let [showFullScreen, setShowFullScreen] = useState(false);
+  //selected option
+  const [selectedOption, setSelectedOption] = useState(() => {
+    if (item.attributes) {
+      return item.attributes.map(({ options }) => options[0]);
+    }
+    return [];
+  });
   const [showSnackbar, setShowSnackbar] = useState(false);
   //color
   const [modalVisible, setModalVisible] = useState(false);
   //Favorite
-  const FavoriteProducts = useSelector((state) =>
-    state.fav.favoriteList.some((product) => item._id === item._id),
-  );
+  const [favoriteProducts, setFavoriteProducts] = useState(favoriteList.some((product) => product.item._id === item._id));
   useEffect(() => {
     BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick)
     const fetching = async () => {
       try {
+        await dispatch(fetchFavorite());
         await dispatch(fetchProductDetail(item._id));
       } catch (err) {
         alert(err);
@@ -65,9 +73,12 @@ export const DetailScreen = (props) => {
 
     return true;
   }
+  const onSelectedOptionChange = (value) => {
+    setSelectedOption(value);
+  }
   if (showFullScreen) {
     return (
-      <View style={styles.container}>
+      <View style={styles.fullScreenContainer}>
         <View style={styles.topBar}>
           <TouchableOpacity
             onPress={() => {
@@ -98,25 +109,29 @@ export const DetailScreen = (props) => {
           { useNativeDriver: false },
         )}
       >
-        {
-          isProductDetailLoading ? (<DetailBody item={item} color={Colors.lighter_green} />) :
-            (
-              <DetailBody item={product} color={Colors.lighter_green} />
-            )
-        }
-        <Comments item={product} />
+        <DetailBody
+          item={isProductDetailLoading ? item : product}
+          color={Colors.lighter_green}
+          onSelectedOptionChange={onSelectedOptionChange}
+          prevSelectedOption={selectedOption}
+          isProductDetailLoading={isProductDetailLoading}
+        />
+        <Comments item={isProductDetailLoading ? item : product} />
       </Animated.ScrollView>
       <ActionButton
-        item={product}
-        FavoriteProducts={FavoriteProducts}
+        item={isProductDetailLoading ? item : product}
+        FavoriteProducts={favoriteProducts}
+        setFavoriteProducts={setFavoriteProducts}
         setShowSnackbar={setShowSnackbar}
         setModalVisible={setModalVisible}
         setMessage={setMessage}
         user={user}
         color={Colors.lighter_green}
+        variations={selectedOption.join("-")}
+        isProductDetailLoading={isProductDetailLoading}
       />
       <ModalComp
-        item={product}
+        item={isProductDetailLoading ? item : product}
         color={Colors.lighter_green}
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -133,6 +148,9 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     justifyContent: "center",
     height: height,
+  },
+  fullScreenContainer: {
+    flex: 1,
   },
   topBar: {
     paddingTop: Platform.OS === "android" ? 15 : 25,

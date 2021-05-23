@@ -1,9 +1,12 @@
 {
   "expo": {
-    "scheme": "cattuong",
-    "name": "Cat Tuong",
+    "scheme": "shamdi",
+    "name": "Shamdi",
     "slug": "e-commerce-app",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
@@ -15,10 +18,11 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": ["./src/assets/**/*"],
-
+    "assetBundlePatterns": [
+      "./src/assets/**/*"
+    ],
     "ios": {
-      "bundleIdentifier": "com.cattuong.ecommerce",
+      "bundleIdentifier": "com.shamdi.ecommerce",
       "buildNumber": "1.0.1",
       "supportsTablet": true,
       "infoPlist": {
@@ -27,18 +31,23 @@
       }
     },
     "android": {
-      "package": "com.cattuong.ecommerce",
+      "package": "com.shamdi.ecommerce",
       "versionCode": 2,
       "useNextNotificationsApi": true,
       "permissions": [
         "CAMERA",
         "WRITE_EXTERNAL_STORAGE",
         "USE_BIOMETRIC",
-        "USE_FINGERPRINT"
+        "USE_FINGERPRINT",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION"
       ],
       "softwareKeyboardLayoutMode": "pan"
     },
-    "notification": { "icon": "./src/assets/icon.png" },
+    "notification": {
+      "icon": "./src/assets/icon.png"
+    },
     "description": "E-commerce app contains all necessary features"
   }
 }

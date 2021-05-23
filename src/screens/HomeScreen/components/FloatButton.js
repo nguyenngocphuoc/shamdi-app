@@ -10,7 +10,7 @@ export const FloatButton = () => {
   return (
     <FAB.Group
       open={open}
-      icon={open ? 'send' : 'square-edit-outline'}
+      icon={open ? 'cancel' : 'chat-processing'}
       color='#fff'
       fabStyle={{
         backgroundColor: Colors.blue,

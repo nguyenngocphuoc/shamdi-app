@@ -54,7 +54,7 @@ const HorizontalItem = ({ item, navigation }) => {
           <View style={styles.rateContainer}>
             <View style={styles.rate}>
               <AntDesign name="star" color="#fed922" size={15} />
-              <CustomText style={styles.score}>4.5</CustomText>
+              <CustomText style={styles.score}>{item.average_rating}</CustomText>
             </View>
             <NumberFormat price={item.price} />
           </View>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     width: "60%",
   },
   title: {
-    fontSize: 15,
+    fontSize: 13,
   },
   subText: {
     fontSize: 13,

@@ -2,17 +2,18 @@ import React from "react";
 import {
   View,
   StyleSheet,
-  TouchableOpacity,
   FlatList,
   Image,
 } from "react-native";
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ProductItem } from "./ProductItem";
 import CustomText from "../../../components/UI/CustomText";
 import Colors from "../../../utils/Colors";
 import { BlurView } from "expo-blur";
+import { AsyncStorage } from 'react-native';
+import CURRENT_CATEGORY_ID from '../../../utils/Config'
 //PropTypes check
 import PropTypes from "prop-types";
-
 export class CategorySection extends React.PureComponent {
   render() {
     const { data, name, bg, navigation, id } = this.props;
@@ -44,7 +45,16 @@ export class CategorySection extends React.PureComponent {
           />
         </View>
         <TouchableOpacity
-          onPress={() => navigation.navigate("Product")}
+          onPress={() => {
+            const setCategory = async () => {
+              try {
+                navigation.navigate("Product");
+              } catch (err) {
+                alert(err);
+              }
+            };
+            setCategory();
+          }}
           style={{ marginHorizontal: 10 }}
         >
           <BlurView tint="light" intensity={100} style={styles.seeMore}>

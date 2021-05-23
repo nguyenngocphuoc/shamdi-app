@@ -12,20 +12,12 @@ class PreOrderItem extends React.PureComponent {
     const total = +item.quantity * +item.item.price;
     return (
       <View style={styles.container}>
-        <View style={styles.left}>
-          <Image
-            style={{
-              width: "100%",
-              height: 50,
-              resizeMode: "stretch",
-              borderRadius: 5,
-            }}
-            source={{ uri: item.item.thumb }}
-          />
-        </View>
         <View style={styles.right}>
           <View>
             <CustomText style={styles.title}>{item.item.filename}</CustomText>
+            <CustomText style={{ color: Colors.grey, fontSize: 12 }}>
+              {item.item.selectedVariation}
+            </CustomText>
           </View>
           <NumberFormat
             value={total.toString()}
@@ -67,7 +59,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   right: {
-    width: "80%",
+    width: "100%",
     paddingLeft: 15,
     justifyContent: "space-between",
   },

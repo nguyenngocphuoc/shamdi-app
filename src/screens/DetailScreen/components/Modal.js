@@ -87,7 +87,7 @@ export class ModalComp extends React.PureComponent {
                   {item.filename}
                 </CustomText>
                 <CustomText style={{ fontSize: 12, color: Colors.grey }}>
-                  Cung cấp bởi Cát Tường
+                  Cung cấp bởi Shamdi.vn
                 </CustomText>
               </View>
               <CustomText

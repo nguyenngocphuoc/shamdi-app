@@ -27,9 +27,10 @@ export const ProfilePic = ({
   const { showActionSheetWithOptions } = useActionSheet();
 
   const UploadProfileHandler = () => {
+    alert("Chức năng này đang phát triển ! vui lòng thử lại sau.")
+    /*
     const options = ["Take Photo", "Choose From Library", "Cancel"];
-
-    showActionSheetWithOptions(
+     showActionSheetWithOptions(
       {
         options,
         // destructiveButtonIndex: 2,
@@ -55,7 +56,7 @@ export const ProfilePic = ({
           setUploadButton(false);
         }
       }
-    );
+    ); */
   };
   return (
     <View>

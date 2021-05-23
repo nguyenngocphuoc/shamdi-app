@@ -4,6 +4,7 @@ import {
   FETCH_CART,
   REMOVE_FROM_CART,
   DES_CART_QUANTITY,
+  INS_CART_QUANTITY,
   RESET_CART,
   CART_LOADING,
   CART_FAILURE,
@@ -80,6 +81,14 @@ export const cartReducer = (state = initialState, action) => {
       const { cartItemId } = action;
       const index = findIndex(cartList, cartItemId);
       cartList[index].quantity = +cartList[index].quantity - 1;
+      return {
+        ...state,
+        cartItems: { ...state.cartItems },
+        isLoading: false,
+      };
+    case INS_CART_QUANTITY:
+      const idx = findIndex(cartList, action.cartItemId);
+      cartList[idx].quantity = +cartList[idx].quantity + 1;
       return {
         ...state,
         cartItems: { ...state.cartItems },

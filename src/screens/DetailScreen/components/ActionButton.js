@@ -18,8 +18,6 @@ import { useDispatch, useSelector } from 'react-redux';
 //Action
 import { addToCart, removeFavorite, addFavorite } from '../../../reducers';
 import Messages from '../../../messages/user';
-import Colors from '../../../utils/Colors';
-
 //PropTypes check
 import PropTypes from 'prop-types';
 
@@ -29,8 +27,11 @@ export const ActionButton = ({
   color,
   setShowSnackbar,
   FavoriteProducts,
+  setFavoriteProducts,
   setModalVisible,
   setMessage,
+  variations,
+  isProductDetailLoading
 }) => {
   const dispatch = useDispatch();
   const cartLoading = useSelector((state) => state.cart.isLoading);
@@ -42,15 +43,20 @@ export const ActionButton = ({
   }, []);
   //Set Colors
   const addToCartAct = async () => {
-    if (Object.keys(user).length === 0) {
-      setMessage(Messages['user.login.require']);
-      setShowSnackbar(true);
-    } else {
-      try {
-        await dispatch(addToCart(item, user.token));
-        setModalVisible(true);
-      } catch (err) {
-        throw err;
+    if (isProductDetailLoading) {
+      alert("Đang tải nội dung sản phẩm, vui lòng đợi !")
+    }
+    else {
+      if (Object.keys(user).length === 0) {
+        setMessage(Messages['user.login.require']);
+        setShowSnackbar(true);
+      } else {
+        try {
+          await dispatch(addToCart(item, variations));
+          setModalVisible(true);
+        } catch (err) {
+          throw err;
+        }
       }
     }
   };
@@ -69,11 +75,15 @@ export const ActionButton = ({
           },
           {
             text: 'Đồng ý',
-            onPress: () => dispatch(removeFavorite(item._id)),
+            onPress: () => {
+              dispatch(removeFavorite(item._id))
+              setFavoriteProducts(false);
+            },
           },
         ],
       );
     } else {
+      setFavoriteProducts(true);
       dispatch(addFavorite(item));
     }
   };
@@ -95,18 +105,18 @@ export const ActionButton = ({
               loop={false}
             />
           ) : (
-              <Ionicons name='ios-heart-empty' size={27} color={color} />
-            )}
+            <Ionicons name='ios-heart-empty' size={27} color={color} />
+          )}
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.addCart, { backgroundColor: color }]}
           onPress={addToCartAct}
         >
-          {cartLoading ? (
+          {(cartLoading || isProductDetailLoading) ? (
             <ActivityIndicator size='small' color='#fff' />
           ) : (
-              <CustomText style={styles.actionText}>Thêm vào giỏ hàng</CustomText>
-            )}
+            <CustomText style={styles.actionText}>Thêm vào giỏ hàng</CustomText>
+          )}
         </TouchableOpacity>
       </View>
     </Animatable.View>
@@ -119,8 +129,11 @@ ActionButton.propTypes = {
   color: PropTypes.string.isRequired,
   setShowSnackbar: PropTypes.func.isRequired,
   FavoriteProducts: PropTypes.bool.isRequired,
+  setFavoriteProducts: PropTypes.func.isRequired,
   setModalVisible: PropTypes.func.isRequired,
   setMessage: PropTypes.func.isRequired,
+  variations: PropTypes.string.isRequired,
+  isProductDetailLoading: PropTypes.bool.isRequired,
 };
 
 const styles = StyleSheet.create({

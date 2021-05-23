@@ -53,7 +53,7 @@ export const FavoriteBody = ({
           refreshing={isRefreshing}
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => {
-            return <FavoriteItem navigation={navigation} item={item} />;
+            return <FavoriteItem navigation={navigation} item={item.item} />;
           }}
         />
       )}

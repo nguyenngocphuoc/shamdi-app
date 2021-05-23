@@ -9,7 +9,7 @@ import {
 //Redux
 import { useDispatch } from "react-redux";
 //Action
-import { removeFromCart, addToCart, decCartQuantity } from "../../../reducers";
+import { removeFromCart, updateCartQuantity } from "../../../reducers";
 //Text
 import CustomText from "../../../components/UI/CustomText";
 //Colors
@@ -27,6 +27,9 @@ export const CartBody = ({
   isRefreshing,
 }) => {
   const dispatch = useDispatch();
+  const remove = (itemId) => {
+    dispatch(removeFromCart(itemId));
+  };
   const onRemove = (itemId) => {
     Alert.alert("Bỏ giỏ hàng", "Bạn có chắc bỏ sản phẩm khỏi giỏ hàng?", [
       {
@@ -35,11 +38,12 @@ export const CartBody = ({
       {
         text: "Đồng ý",
         onPress: () => {
-          dispatch(removeFromCart(carts._id, itemId));
+          remove(itemId);
         },
       },
     ]);
   };
+
   return (
     <View style={styles.footer}>
       {Object.keys(user).length === 0 ? (
@@ -63,17 +67,22 @@ export const CartBody = ({
             data={carts.items}
             onRefresh={loadCarts}
             refreshing={isRefreshing}
-            keyExtractor={(item) => item.item._id}
+            keyExtractor={(item) => item.item._id.toString()}
             renderItem={({ item }) => {
               return (
                 <CartItem
                   item={item}
+                  toDetail={() => {
+                    let data = item.item
+                    navigation.navigate("Detail", { item: data });
+                  }}
+                  remove={() => remove(item.item._id)}
                   onRemove={() => onRemove(item.item._id)}
                   onAdd={() => {
-                    dispatch(addToCart(item.item, user.token));
+                    dispatch(updateCartQuantity(item.item._id, "INS_CART_QUANTITY", item.quantity));
                   }}
                   onDes={() => {
-                    dispatch(decCartQuantity(carts._id, item.item._id));
+                    dispatch(updateCartQuantity(item.item._id, "DES_CART_QUANTITY", item.quantity));
                   }}
                 />
               );

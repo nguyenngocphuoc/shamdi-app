@@ -37,10 +37,6 @@ const getStepIndicatorIconConfig = ({ position, stepStatus }) => {
       break;
     }
     case 2: {
-      iconConfig.name = "payment";
-      break;
-    }
-    case 3: {
       iconConfig.name = "done-all";
       break;
     }
@@ -64,7 +60,7 @@ const OrderSteps = (props) => {
       <View style={styles.stepIndicator}>
         <StepIndicator
           customStyles={secondIndicatorStyles}
-          stepCount={4}
+          stepCount={3}
           currentPosition={currentPage}
           renderStepIndicator={renderStepIndicator}
         />

@@ -1,5 +1,5 @@
 // Import react
-import React from 'react';
+import React, { useState } from 'react';
 // Import react-native components
 import {
   SafeAreaView,
@@ -11,6 +11,7 @@ import {
   FlatList,
   Platform,
   StatusBar,
+  TextInput
 } from 'react-native';
 //icon
 import { Ionicons } from '@expo/vector-icons';
@@ -19,7 +20,14 @@ import Colors from '../../../utils/Colors';
 //Search Item component
 import SearchItem from './SearchItem';
 import Animated, { Easing } from 'react-native-reanimated';
-import { TouchableOpacity, TextInput } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+const axios = require('axios')
+//
+import { BACKEND_API_URL, BASIC_AUTH } from "../../../utils/Config";
+import { isEmptyOrSpaces, variationsData } from "../../../utils/Tools";
+//
+import Spinner from 'react-native-loading-spinner-overlay';
+
 const { Value, timing } = Animated;
 // Calculate window size
 const { width, height } = Dimensions.get('window');
@@ -29,9 +37,11 @@ export class Header extends React.Component {
     super(props);
     // state
     this.state = {
+      loading: false,
       isFocused: false,
       keyword: '',
       productsFilter: '',
+      searched: false
     };
     // animation values
     this._input_box_translate_x = new Value(width);
@@ -41,12 +51,63 @@ export class Header extends React.Component {
   }
   //Search
   searchFilterFunction = (searchText) => {
-    const data = this.props.products.filter((product) =>
-      product.filename.toLowerCase().includes(searchText.toLowerCase()),
-    );
-    this.setState({ keyword: searchText, productsFilter: data });
+    this.setState({ keyword: searchText });
   };
+  onSearch = () => {
+    const search = async () => {
+      this.setState({ loading: true });
+      const data = await this.getData(50, 1, this.state.keyword);
+      this.setState({ loading: false, productsFilter: data, searched: true });
+    }
+    search();
+  }
+  getData = async (per_page = 20, page = 1, search = "") => {
+    let response = await axios.get(`${BACKEND_API_URL}/products?page=${page}&per_page=${per_page}` + (!isEmptyOrSpaces(search) ? `&search=${search}` : ""), {
+      headers: { 'Authorization': BASIC_AUTH }
+    })
+    let data = {
+      "total": 100,
+      "page": page,
+      "pageSize": per_page,
+      "content": []
+    };
+    if (response.data) {
+      response.data.forEach(function (product) {
+        data.content.push({
+          "url": product.images[0].src,
+          "thumb": product.images[0].src,
+          "images": product.images.map(({ src }) => src),
+          "_id": product.id,
+          "permalink": product.permalink,
+          "filename": product.name,
+          "price": product.price,
+          "color": "blue",
+          "attributes": product.attributes,
+          "origin": "Việt Nam",
+          "standard": "New",
+          "description": product.short_description,
+          "type": product.categories && product.categories[0] ? product.categories[0].id : "order",
+          "average_rating": product.average_rating,
+          "rating_count": product.rating_count,
+          "createdAt": product.date_created_gmt,
+          "updatedAt": product.date_modified_gmt,
+          "comments": [],
+          "__v": 0
+        })
 
+      });
+
+      response = { status: true, data, message: "ok" };
+    } else {
+      response = { status: false, data, message: "Tải dữ liệu lỗi" }
+    }
+    if (!response.status) {
+      isFail = true;
+      message += response.message;
+    }
+    const resData = response.data.content;
+    return resData;
+  }
   _onFocus = () => {
     // update state
     this.setState({ isFocused: true });
@@ -207,14 +268,42 @@ export class Header extends React.Component {
                     />
                   </TouchableOpacity>
                 </Animated.View>
-                <TextInput
-                  ref='input'
-                  placeholder='Tìm kiếm sản phẩm'
-                  clearButtonMode='always'
-                  value={this.state.keyword}
-                  onChangeText={(value) => this.searchFilterFunction(value)}
-                  style={styles.input}
-                />
+                <Animated.View>
+                  <TouchableOpacity
+                    activeOpacity={1}
+                    underlayColor={'#ccd0d5'}
+                    onPress={() => { this.refs.input.focus(); }}
+                    style={{
+                      width: width - 80,
+                      height: 40,
+                      borderRadius: 40,
+                      flexDirection: 'row',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <TextInput
+                      ref='input'
+                      placeholder='Tìm kiếm sản phẩm'
+                      onChangeText={(value) => this.searchFilterFunction(value)}
+                      style={styles.input}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
+                <Animated.View style={{ opacity: this._back_button_opacity }}>
+                  <TouchableOpacity
+                    activeOpacity={1}
+                    underlayColor={'#ccd0d5'}
+                    onPress={() => { this.onSearch() }}
+                    style={styles.back_icon_box}
+                  >
+                    <Ionicons
+                      name='ios-search'
+                      size={25}
+                      color={Colors.light_green}
+                    />
+                  </TouchableOpacity>
+                </Animated.View>
               </Animated.View>
             </View>
           </Animated.View>
@@ -229,7 +318,15 @@ export class Header extends React.Component {
           ]}
         >
           <View style={styles.content_safe_area}>
-            {this.state.keyword === '' ? (
+            <Spinner
+              //visibility of Overlay Loading Spinner
+              visible={this.state.loading}
+              //Text with the Spinner
+              textContent={'Đang tải...'}
+              //Text style of the Spinner Text
+              textStyle={styles.spinnerTextStyle}
+            />
+            {!this.state.searched ? (
               <View style={styles.image_placeholder_container}>
                 <Image
                   source={require('../../../assets/Images/logo1.png')}
@@ -241,33 +338,33 @@ export class Header extends React.Component {
                 </Text>
               </View>
             ) : (
-                <View
-                  style={{
-                    marginHorizontal: 20,
-                    marginTop:
-                      Platform.OS === 'android' ? 0 : height < 668 ? 0 : 60,
-                  }}
-                >
-                  {this.state.productsFilter.length === 0 ? (
-                    <Text style={styles.image_placeholder_text}>
-                      Không tìm thấy sản phầm
-                    </Text>
-                  ) : (
-                      <FlatList
-                        data={this.state.productsFilter}
-                        keyExtractor={(item) => item._id}
-                        renderItem={({ item }) => {
-                          return (
-                            <SearchItem
-                              item={item}
-                              navigation={this.props.navigation}
-                            />
-                          );
-                        }}
-                      />
-                    )}
-                </View>
-              )}
+              <View
+                style={{
+                  marginHorizontal: 4,
+                  marginTop:
+                    Platform.OS === 'android' ? 0 : height < 668 ? 0 : 60,
+                }}
+              >
+                {this.state.productsFilter.length === 0 ? (
+                  <Text style={styles.image_placeholder_text}>
+                    Không tìm thấy sản phầm
+                  </Text>
+                ) : (
+                  <FlatList
+                    data={this.state.productsFilter}
+                    keyExtractor={(item) => item._id.toString()}
+                    renderItem={({ item }) => {
+                      return (
+                        <SearchItem
+                          item={item}
+                          navigation={this.props.navigation}
+                        />
+                      );
+                    }}
+                  />
+                )}
+              </View>
+            )}
           </View>
         </Animated.View>
       </>
@@ -294,6 +391,7 @@ const styles = StyleSheet.create({
           : 20,
   },
   header_inner: {
+
     flex: 1,
     overflow: 'hidden',
     flexDirection: 'row',
@@ -350,7 +448,7 @@ const styles = StyleSheet.create({
   content_safe_area: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 80 : 40,
-    paddingBottom: 80,
+    paddingBottom: 40,
     backgroundColor: Colors.white,
   },
   content_inner: {
@@ -382,5 +480,8 @@ const styles = StyleSheet.create({
   },
   item_icon: {
     marginRight: 15,
+  },
+  spinnerTextStyle: {
+    color: '#FFF',
   },
 });

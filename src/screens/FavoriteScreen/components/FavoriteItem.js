@@ -22,7 +22,8 @@ import NumberFormat from "react-number-format";
 import CustomText from "../../../components/UI/CustomText";
 //PropTypes check
 import PropTypes from "prop-types";
-
+//icon
+import { Ionicons, AntDesign } from '@expo/vector-icons';
 export const renderRightAction = (text, color, action, x, progress) => {
   const trans = progress.interpolate({
     inputRange: [0, 1],
@@ -31,10 +32,10 @@ export const renderRightAction = (text, color, action, x, progress) => {
   return (
     <Animated.View style={{ flex: 1, transform: [{ translateX: trans }] }}>
       <TouchableOpacity
-        style={[styles.rightAction, { backgroundColor: color }]}
+        style={[styles.rightAction, { backgroundColor: color, borderLeftWidth: 1, borderLeftColor: Colors.grey }]}
         onPress={action}
       >
-        <Text style={styles.actionText}>{text}</Text>
+        <Ionicons name="md-trash" size={24} color="#ee4d2d" />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -49,20 +50,6 @@ export const FavoriteItem = ({ navigation, item }) => {
     };
   }, []);
   const dispatch = useDispatch();
-  const addToCartAct = async () => {
-    try {
-      await dispatch(addToCart(item));
-      if (!unmounted.current) {
-        Alert.alert("Thêm thành công", "Sản phẩm đã được thêm vào giỏ hàng", [
-          {
-            text: "OK",
-          },
-        ]);
-      }
-    } catch (err) {
-      throw err;
-    }
-  };
   const removeFavoriteAct = () => {
     Alert.alert(
       "Bỏ yêu thích",
@@ -81,17 +68,10 @@ export const FavoriteItem = ({ navigation, item }) => {
   };
   const RightActions = (progress) => {
     return (
-      <View style={{ width: 170, flexDirection: "row" }}>
-        {renderRightAction(
-          "Thêm vào giỏ",
-          "#ffab00",
-          addToCartAct,
-          140,
-          progress
-        )}
+      <View style={{ width: 80, flexDirection: "row" }}>
         {renderRightAction(
           "Bỏ thích",
-          Colors.red,
+          Colors.light_grey,
           removeFavoriteAct,
           30,
           progress
@@ -111,7 +91,7 @@ export const FavoriteItem = ({ navigation, item }) => {
             onPress={() => navigation.navigate("Detail", { item: item })}
             style={{
               marginLeft: 5,
-              width: "30%",
+              width: 70,
               height: "100%",
               marginRight: 10,
               alignContent: "center",
@@ -121,7 +101,7 @@ export const FavoriteItem = ({ navigation, item }) => {
             <Image
               style={{
                 height: 70,
-                width: "100%",
+                width: 70,
                 resizeMode: "contain",
                 borderRadius: 10,
               }}
@@ -147,7 +127,7 @@ export const FavoriteItem = ({ navigation, item }) => {
           </TouchableOpacity>
           <View style={styles.info}>
             <CustomText style={styles.title}>{item.filename}</CustomText>
-            <CustomText style={styles.subText}>{item.type}</CustomText>
+            <CustomText style={styles.subText}>{item.average_rating}<AntDesign name="star" size={15} color={"#FFFF00"} /></CustomText>
             <View style={styles.rateContainer}>
               <NumberFormat
                 value={item.price}

@@ -11,6 +11,7 @@ import {
   favoriteReducer,
   orderReducer,
   productReducer,
+  categoryReducer
 } from "./src/reducers";
 //Navigator
 import { AppNavigator } from "./src/navigation";

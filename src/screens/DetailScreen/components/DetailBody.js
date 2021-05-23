@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
 //Animatable
 import * as Animatable from "react-native-animatable";
@@ -16,10 +16,14 @@ import PropTypes from "prop-types";
 import HTML from 'react-native-render-html';
 // sharebtn
 import ShareItem from "../../../components/UI/ShareItem";
+// select options
+import RNPickerSelect from 'react-native-picker-select';
+
 
 const { width, height } = Dimensions.get("window");
 
-export const DetailBody = ({ item, color }) => {
+export const DetailBody = ({ item, color, onSelectedOptionChange, prevSelectedOption, isProductDetailLoading }) => {
+
   const star = (rating) => {
     let result = [];
     for (let index = 0; index < 5; index++) {
@@ -29,7 +33,7 @@ export const DetailBody = ({ item, color }) => {
         starColor = color;
       }
       result.push(
-        <Animatable.View animation="bounceIn" delay={delay}>
+        <Animatable.View key={index} animation="bounceIn" delay={delay}>
           <AntDesign name="star" size={15} color={starColor} />
         </Animatable.View>
       );
@@ -48,13 +52,56 @@ export const DetailBody = ({ item, color }) => {
               <ShareItem
                 imageURL={item.url}
                 title={item.filename}
-                message={item.filename}
+                message={item.permalink}
               />
             </View>
           </Animatable.View>
         }
       </View>);
   }
+  const [price, setPrice] = useState(item.price);
+
+  const selectOptions = () => {
+    let result = [];
+    if (item.attributes && !isProductDetailLoading) {
+      item.attributes.forEach((attribute, index) => {
+        if (attribute.options[0]) {
+          const defaultOption = attribute.options[0]
+          const items = attribute.options.slice(1).map((option) => {
+            return {
+              label: option, value: option
+            }
+          })
+          const onValueChange = (value) => {
+            let selectedArray = Array.from(prevSelectedOption);
+            selectedArray[index] = value;
+            onSelectedOptionChange(selectedArray);
+            setPrice(item.variationsData[selectedArray.join("-")]
+              ? item.variationsData[selectedArray.join("-")]?.price
+              : item.price);
+          }
+          result.push((
+            <RNPickerSelect
+              key={index}
+              onValueChange={onValueChange}
+              placeholder={{ label: defaultOption, value: defaultOption }}
+              items={items}
+            />
+          ))
+        }
+
+      });
+    }
+    return (
+      (
+        <>
+          {result}
+        </>
+      )
+    )
+  }
+
+
   return (
     <View style={[styles.footer]}>
       <Animatable.View
@@ -67,7 +114,7 @@ export const DetailBody = ({ item, color }) => {
         </CustomText>
         <NumberFormat
           style={{ color: "#fff", fontSize: 13 }}
-          price={item.price}
+          price={isProductDetailLoading ? item.price : price}
           color={color}
         />
       </Animatable.View>
@@ -77,6 +124,7 @@ export const DetailBody = ({ item, color }) => {
         delay={1000}
         style={styles.description}
       >
+        {selectOptions()}
         <CustomText
           style={{
             ...styles.title,
@@ -121,6 +169,8 @@ export const DetailBody = ({ item, color }) => {
 DetailBody.propTypes = {
   item: PropTypes.object.isRequired,
   color: PropTypes.string.isRequired,
+  onSelectedOptionChange: PropTypes.func.isRequired,
+  isProductDetailLoading: PropTypes.bool.isRequired
 };
 
 const styles = StyleSheet.create({

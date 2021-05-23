@@ -7,10 +7,9 @@ import Detail from "./Detail";
 import PropTypes from "prop-types";
 
 export const ProfileBody = ({
+  navigation,
   user,
   uploadButton,
-  setUploadButton,
-  setImageUri,
   UploadProfile,
 }) => {
   return (
@@ -29,21 +28,11 @@ export const ProfileBody = ({
         content={user.address.length === 0 ? "Not added yet" : user.address}
       />
       <UploadButton
-        uploadButton={uploadButton}
-        setUploadButton={setUploadButton}
-        setImageUri={setImageUri}
-        UploadProfile={UploadProfile}
+        user={user}
+        navigation={navigation}
       />
     </View>
   );
-};
-
-ProfileBody.propTypes = {
-  user: PropTypes.object.isRequired,
-  uploadButton: PropTypes.bool.isRequired,
-  setUploadButton: PropTypes.func.isRequired,
-  setImageUri: PropTypes.func.isRequired,
-  UploadProfile: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({

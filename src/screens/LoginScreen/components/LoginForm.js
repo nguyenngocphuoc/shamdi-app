@@ -40,18 +40,12 @@ const validate = (values) => {
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
     errors.email = "Email không hơp lệ";
   }
-  if (!values.password) {
-    errors.password = "Mật khẩu không được bỏ trống";
-  } else if (values.password.length < 6) {
-    errors.password = "Mật khẩu phải nhiều hơn hoặc bằng 6 ký tự";
-  }
   return errors;
 };
 
 const Login = (props) => {
   const dispatch = useDispatch();
   const { handleSubmit } = props;
-  const [showPass, setShowPass] = useState(false);
   const auth = useSelector((state) => state.auth);
   const unmounted = useRef(false);
   const scanFingerprintOrFaceId = async () => {
@@ -64,7 +58,7 @@ const Login = (props) => {
     });
     if (result.success) {
       const data = await JSON.parse(resData);
-      dispatch(LoginAction(data.email, data.password));
+      dispatch(LoginAction(data.email));
     }
   };
 
@@ -76,6 +70,7 @@ const Login = (props) => {
         {
           text: "Scan",
           onPress: () => {
+            console.log("start");
             scanFingerprintOrFaceId();
           },
         },
@@ -95,7 +90,7 @@ const Login = (props) => {
 
   const submit = async (values) => {
     try {
-      await dispatch(LoginAction(values.email, values.password));
+      await dispatch(LoginAction(values.email));
       props.navigation.navigate("Home");
     } catch (err) {
       alert(err);
@@ -136,33 +131,8 @@ const Login = (props) => {
                 icon="email"
                 component={renderField}
               />
-              <Field
-                name="password"
-                keyboardType="default"
-                label="Password"
-                component={renderField}
-                secureTextEntry={showPass ? false : true}
-                passIcon="eye"
-                icon="lock"
-                showPass={showPass}
-                setShowPass={setShowPass}
-              />
             </View>
             <View style={styles.group}>
-              <TouchableOpacity
-                onPress={() => {
-                  props.navigation.navigate("ForgetPwScreen");
-                }}
-              >
-                <CustomText
-                  style={{
-                    ...styles.textSignSmall,
-                    fontFamily: "Roboto-Medium",
-                  }}
-                >
-                  Forget Password ?
-                </CustomText>
-              </TouchableOpacity>
             </View>
             <TouchableOpacity
               onPress={handleSubmit(submit)}

@@ -41,6 +41,8 @@ import { FinishOrderScreen } from '../screens/FinishOrderScreen';
 // Profile Screens
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { EditProfileScreen } from '../screens/ProfileScreen';
+// google fit Screen
+import GoogleFitScreen from "../screens/FitnessScreen/GoogleFitScreen";
 // redux
 import { useSelector } from 'react-redux';
 
@@ -162,6 +164,7 @@ export const ProfileStackScreen = () => (
   </ProfileStack.Navigator>
 );
 
+
 const HomeStack = createStackNavigator();
 export const HomeStackScreen = () => (
   <HomeStack.Navigator
@@ -173,7 +176,7 @@ export const HomeStackScreen = () => (
     <HomeStack.Screen
       name='Home'
       component={HomeScreen}
-      //animationEnabled: false , nằm trong option
+    //animationEnabled: false , nằm trong option
     />
     <HomeStack.Screen name='Detail' component={DetailScreen} />
     <HomeStack.Screen name='Cart' component={CartStackScreen} />
@@ -250,6 +253,12 @@ export const DrawerNavigator = () => {
       icon: 'home-outline',
     },
     {
+      name: 'googlefit',
+      screen: GoogleFitScreen,
+      label: 'Google Fit',
+      icon: 'google-fit',
+    }
+    , {
       name: 'Order',
       screen: OrderScreen,
       label: 'Đơn Hàng',

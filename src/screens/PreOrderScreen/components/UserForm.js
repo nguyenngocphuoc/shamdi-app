@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Field, reduxForm } from 'redux-form';
 import renderField from './RenderField';
+import { useSelector } from 'react-redux';
 //Colors
 import Colors from '../../../utils/Colors';
 import CustomText from '../../../components/UI/CustomText';
@@ -36,12 +37,14 @@ const validate = (values) => {
   return errors;
 };
 
-const User = ({ getReceiver, checkValidation }) => {
-  const [receiverName, setReceiverName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState('');
+const User = ({ getReceiver, checkValidation, initialize }) => {
+  const user = useSelector((state) => state.auth.user);
+  const [receiverName, setReceiverName] = useState(user.name);
+  const [phone, setPhone] = useState(user.phone);
+  const [address, setAddress] = useState(user.address);
 
   useEffect(() => {
+    initialize({ name: user.name, phone: user.phone, address: user.address });
     getReceiver(receiverName, phone, address);
   }, [receiverName, phone, address]);
 

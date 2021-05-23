@@ -1,11 +1,19 @@
-import { API_URL } from "../../utils/Config";
+import { API_URL, FIREBASE_CONFIG } from "../../utils/Config";
 import { timeoutPromise } from "../../utils/Tools";
+import { AsyncStorage } from 'react-native';
+import * as firebase from 'firebase';
 export const FAVORITE_LOADING = "FAVORITE_LOADING";
 export const FAVORITE_FAILURE = "FAVORITE_FAILURE";
 export const FETCH_FAVORITE = "FETCH_FAVORITE";
 export const ADD_FAVORITE = "ADD_FAVORITE";
 export const REMOVE_FAVORITE = "REMOVE_FAVORITE";
 
+
+// Initialize Firebase
+if (firebase.apps.length === 0) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+}
+const favoriteRef = firebase.database().ref("favorite")
 //Fetch Favorite
 export const fetchFavorite = () => {
   return async (dispatch, getState) => {
@@ -15,34 +23,23 @@ export const fetchFavorite = () => {
         type: FAVORITE_LOADING,
       });
       try {
-        const response = await timeoutPromise(
-          fetch(`${API_URL}/favoriteList`, {
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-              "auth-token": user.token,
-            },
-            method: "GET",
-          })
-        );
-        if (!response.ok) {
-          dispatch({
-            type: FAVORITE_FAILURE,
+        let favoriteData = await favoriteRef.child(user.userid).once('value')
+        favoriteData = favoriteData.val();
+        let result = [];
+        if (favoriteData) {
+          Object.keys(favoriteData).forEach(function (k) {
+            result.push(favoriteData[k])
           });
-          throw new Error("Something went wrong!, can't get favorite list");
         }
-        const resData = await response.json();
-
-        const filterUserFavorite = resData.content.filter(
-          (userFavorite) => userFavorite.userId === user.userid
-        );
-        let items = [];
-        if (filterUserFavorite.length > 0) {
-          items = filterUserFavorite[0].items;
-        }
+        /*if (!response.ok) {
+                dispatch({
+                  type: FAVORITE_FAILURE,
+                });
+                throw new Error("Something went wrong!, can't get favorite list");
+              } */
         dispatch({
           type: FETCH_FAVORITE,
-          favoriteList: items,
+          favoriteList: result,
         });
       } catch (err) {
         throw err;
@@ -59,33 +56,22 @@ export const addFavorite = (item) => {
     });
     const user = getState().auth.user;
     try {
-      const response = await timeoutPromise(
-        fetch(`${API_URL}/favoriteList/post`, {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "auth-token": user.token,
-          },
-          method: "POST",
-          body: JSON.stringify({
-            userId: user.userid,
-            items: [
-              {
-                item: item._id,
-              },
-            ],
-          }),
-        })
-      );
-      if (!response.ok) {
+      favoriteRef.child(user.userid).child(item._id).set({
+        item: item,
+        quantity: 1
+      })
+      /* if (!response.ok) {
         dispatch({
           type: FAVORITE_FAILURE,
         });
         throw new Error("Something went wrong!");
-      }
+      } */
       dispatch({
         type: ADD_FAVORITE,
-        addItem: item,
+        addItem: {
+          item: item,
+          quantity: 1
+        },
       });
     } catch (err) {
       throw err;
@@ -99,25 +85,13 @@ export const removeFavorite = (id) => {
     });
     const user = getState().auth.user;
     try {
-      const response = await timeoutPromise(
-        fetch(`${API_URL}/favoriteList/${user.userid}`, {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "auth-token": user.token,
-          },
-          method: "PATCH",
-          body: JSON.stringify({
-            item: id,
-          }),
-        })
-      );
-      if (!response.ok) {
+      favoriteRef.child(user.userid).child(id).remove();
+      /* if (!response.ok) {
         dispatch({
           type: FAVORITE_FAILURE,
         });
         throw new Error("Something went wrong!");
-      }
+      } */
       dispatch({
         type: REMOVE_FAVORITE,
         itemId: id,

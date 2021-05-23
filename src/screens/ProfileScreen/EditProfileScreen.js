@@ -26,7 +26,7 @@ export const EditProfileScreen = (props) => {
   }, [address, phone]);
 
   const updateInfoHandler = async () => {
-    if (phone.length === 10 && address.length >= 6) {
+    if (phone.length > 7 && address.length >= 6) {
       try {
         await dispatch(EditInfo(phone, address));
         props.navigation.navigate("Profile");
@@ -97,7 +97,7 @@ export const EditProfileScreen = (props) => {
               marginHorizontal: 10,
             }}
           >
-            Update Your Information
+            Cập nhật thông tin cá nhân
           </Button>
         </View>
       </View>

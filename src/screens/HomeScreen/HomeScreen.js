@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 //Redux
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchData } from '../../reducers';
+import { fetchData, fetchCart } from '../../reducers';
 //Colors
 import Colors from '../../utils/Colors';
 //Animation
@@ -44,6 +44,7 @@ export const HomeScreen = ({ navigation }) => {
     const fetching = async () => {
       try {
         await dispatch(fetchData());
+        await dispatch(fetchCart());
       } catch (err) {
         alert(err);
       }
@@ -56,58 +57,58 @@ export const HomeScreen = ({ navigation }) => {
       {isLoading ? (
         <Skeleton />
       ) : (
-          <View style={styles.container}>
-            <Header
-              scrollPoint={scrollY}
-              navigation={navigation}
-              products={products}
-            ></Header>
-            <Portal>
-              <FloatButton />
-            </Portal>
-            <AnimatedFlatList
-              contentContainerStyle={styles.list}
-              showsVerticalScrollIndicator={false}
-              ListHeaderComponent={() => (
-                <View style={styles.banner}>
-                  <Carousel />
-                </View>
-              )}
-              scrollEventThrottle={1}
-              onScroll={Animated.event(
-                [
-                  {
-                    nativeEvent: { contentOffset: { y: scrollY } },
-                  },
-                ],
-                { useNativeDriver: true },
-              )}
-              data={categories}
-              keyExtractor={(item) => item.name}
-              renderItem={({ item }) => (
-                <CategorySection
-                  name={item.name}
-                  id={item.id}
-                  bg={item.bg}
-                  data={products}
-                  navigation={navigation}
-                />
-              )}
+        <View style={styles.container}>
+          <Header
+            scrollPoint={scrollY}
+            navigation={navigation}
+            products={products}
+          ></Header>
+          <Portal>
+            <FloatButton />
+          </Portal>
+          <AnimatedFlatList
+            contentContainerStyle={styles.list}
+            showsVerticalScrollIndicator={false}
+            ListHeaderComponent={() => (
+              <View style={styles.banner}>
+                <Carousel />
+              </View>
+            )}
+            scrollEventThrottle={1}
+            onScroll={Animated.event(
+              [
+                {
+                  nativeEvent: { contentOffset: { y: scrollY } },
+                },
+              ],
+              { useNativeDriver: true },
+            )}
+            data={categories}
+            keyExtractor={(item) => item.name}
+            renderItem={({ item }) => (
+              <CategorySection
+                name={item.name}
+                id={item.id}
+                bg={item.bg}
+                data={products}
+                navigation={navigation}
+              />
+            )}
+          />
+          {Object.keys(notification).length === 0 ? (
+            <View />
+          ) : (
+            <Snackbar
+              checkVisible={true}
+              message={
+                Object.keys(user).length === 0
+                  ? notification
+                  : notification + ' ' + user.name
+              }
             />
-            {Object.keys(notification).length === 0 ? (
-              <View />
-            ) : (
-                <Snackbar
-                  checkVisible={true}
-                  message={
-                    Object.keys(user).length === 0
-                      ? notification
-                      : notification + ' ' + user.name
-                  }
-                />
-              )}
-          </View>
-        )}
+          )}
+        </View>
+      )}
     </Provider>
   );
 };

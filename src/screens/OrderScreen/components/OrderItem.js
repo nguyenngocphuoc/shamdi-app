@@ -20,14 +20,14 @@ export const OrderItem = ({ order }) => {
   const [showDetails, setShowDetails] = useState(false);
   const status = () => {
     switch (order.status) {
-      case "waiting":
+      case "pending":
         return 0;
-      case "confirmed":
+      case "processing":
         return 1;
-      case "delivery":
-        return 2;
-      default:
+      case "completed":
         return 3;
+      default:
+        return 2;
     }
   };
   return (
@@ -36,7 +36,7 @@ export const OrderItem = ({ order }) => {
         <View style={styles.textContainer}>
           <CustomText style={styles.text}>Mã đơn: </CustomText>
           <CustomText style={styles.detail}>
-            CT-{order._id.substr(order._id.length - 10)}
+            CT-{order._id}
           </CustomText>
         </View>
 
@@ -74,6 +74,14 @@ export const OrderItem = ({ order }) => {
               </CustomText>
               <CustomText style={styles.detail}>
                 {order.paymentMethod}
+              </CustomText>
+            </View>
+            <View style={styles.textContainer}>
+              <CustomText style={styles.text}>
+                Tình Trạng:{" "}
+              </CustomText>
+              <CustomText style={styles.detail}>
+                {order.status}
               </CustomText>
             </View>
             <View style={styles.steps}>

@@ -30,7 +30,7 @@ export const IntroScreen = () => {
   }, []);
   const backgroundColor = scrollX.interpolate({
     inputRange: [0, width, width * 2],
-    outputRange: ["#BFEAF5", "#BEECC4", "#FFE4D9"],
+    outputRange: ["#ebeff2", "#ebeff2", "#ebeff2"],
     extrapolate: "clamp",
   });
   const textTranslate = scrollX.interpolate({

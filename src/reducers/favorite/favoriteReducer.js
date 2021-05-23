@@ -37,7 +37,7 @@ export const favoriteReducer = (state = initialState, action) => {
       };
     case REMOVE_FAVORITE:
       const id = action.itemId;
-      const newList = state.favoriteList.filter((item) => item._id !== id);
+      const newList = state.favoriteList.filter((item) => item.item._id !== id);
       return {
         ...state,
         favoriteList: newList,

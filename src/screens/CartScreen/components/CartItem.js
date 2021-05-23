@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Platform,
   Alert,
+  Text
 } from "react-native";
 //Colors
 import Colors from "../../../utils/Colors";
@@ -19,7 +20,7 @@ import PropTypes from "prop-types";
 
 export class CartItem extends React.PureComponent {
   render() {
-    const { item, onAdd, onDes, onRemove } = this.props;
+    const { item, onAdd, onDes, onRemove, remove, toDetail } = this.props;
     const AddItemHandler = async () => {
       await onAdd();
     };
@@ -35,7 +36,7 @@ export class CartItem extends React.PureComponent {
             },
             {
               text: "Đồng ý",
-              onPress: onRemove,
+              onPress: remove,
             },
           ]
         );
@@ -60,7 +61,10 @@ export class CartItem extends React.PureComponent {
           <View
             style={{ flexDirection: "row", justifyContent: "space-between" }}
           >
-            <CustomText style={styles.title}>{item.item.filename}</CustomText>
+            <TouchableOpacity onPress={toDetail}>
+              <Text numberOfLines={1} style={styles.title}>{item.item.filename}</Text>
+            </TouchableOpacity>
+
             <View>
               <TouchableOpacity onPress={onRemove}>
                 <MaterialCommunityIcons name='close' size={20} color='#000' />
@@ -68,7 +72,7 @@ export class CartItem extends React.PureComponent {
             </View>
           </View>
           <CustomText style={{ color: Colors.grey, fontSize: 12 }}>
-            Cung cấp bởi Cát Tường
+            {item.item.selectedVariation}
           </CustomText>
           <NumberFormat price={sum.toString()} />
           <View style={styles.box}>
@@ -123,6 +127,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 14,
+    maxWidth: 170
   },
   box: {
     flexDirection: "row",

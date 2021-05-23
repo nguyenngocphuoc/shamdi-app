@@ -88,7 +88,6 @@ export const Header = ({ navigation, scrollY, item, onFullScreen }) => {
       ></Animated.View>
 
       <Animated.View
-
         source={{ uri: item.url }}
         style={[
           styles.image,

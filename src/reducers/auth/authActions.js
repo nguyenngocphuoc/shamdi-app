@@ -1,5 +1,5 @@
 import { AsyncStorage } from 'react-native';
-import { BACKEND_API_URL } from '../../utils/Config';
+import { BACKEND_API_URL, BASIC_AUTH } from '../../utils/Config';
 import { timeoutPromise } from '../../utils/Tools';
 
 export const AUTH_LOADING = 'AUTH_LOADING';
@@ -32,29 +32,36 @@ export const SignUp = (name, email, password) => {
       type: AUTH_LOADING,
     });
     try {
-      /*       
-        const response = await timeoutPromise(
-              fetch(`${BACKEND_API_URL}/user/register`, {
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                  name,
-                  email,
-                  password,
-                }),
-              }),
-            ); 
-      */
-      let response = await axios.post(`${BACKEND_API_URL}/user/register`, {
-        name,
-        email,
-        password,
+      let userData = {
+        email: email,
+        first_name: "",
+        last_name: name,
+        username: name,
+        password: password
+      };
+      let response = await axios.post(`${BACKEND_API_URL}/customers`, userData, {
+        headers: { 'Authorization': BASIC_AUTH }
       })
-      response = response.data;
-
+      console.log(response);
+      if (!response.data) {
+        dispatch({
+          type: AUTH_FAILURE,
+        });
+        throw new Error("đã xảy ra lỗi !");
+      }
+      const resData = {
+        "phone": "",
+        "address": "",
+        "pushTokens": [],
+        "_id": user._id,
+        "name": user.username,
+        "email": user.email,
+        "password": "1",
+        "profilePicture": user.avatar_url,
+        "__v": 0
+      };
+      response = { status: true, data: resData, message: "Thành công" }
+      const user = response.data;
       if (!response.status) {
         const errorResData = response.data;
         dispatch({
@@ -62,7 +69,6 @@ export const SignUp = (name, email, password) => {
         });
         throw new Error(errorResData.err);
       }
-      response = response.data;
       dispatch({
         type: SIGN_UP,
       });
@@ -73,47 +79,44 @@ export const SignUp = (name, email, password) => {
 };
 
 //Login
-export const Login = (email, password) => {
+export const Login = (email) => {
   return async (dispatch) => {
     dispatch({
       type: AUTH_LOADING,
     });
-    const pushToken = await AskingExpoToken();
     try {
-      /*       const response = await timeoutPromise(
-              fetch(`${BACKEND_API_URL}/user/login`, {
-                headers: {
-                  Accept: 'application/json',
-                  'Content-Type': 'application/json',
-                },
-                method: 'POST',
-                body: JSON.stringify({
-                  email,
-                  password,
-                  pushTokens: [pushToken],
-                }),
-              }),
-            ); */
-      let response = await axios.post(`${BACKEND_API_URL}/user/login`, {
-        email,
-        password,
-        pushTokens: [pushToken],
+      let response = await axios.get(`${BACKEND_API_URL}/customers?role=all&email=${email}`, {
+        headers: { 'Authorization': BASIC_AUTH }
       })
-      response = response.data;
-      if (!response.status) {
-        const errorResData = response.data;
+      if (response.data && response.data.length > 0) {
+        const user = response.data[0];
+        let resData = {
+          "userid": user.id,
+          "name": user.first_name + user.last_name,
+          "email": user.email,
+          "password": "1111",
+          "phone": user.billing?.phone,
+          "address": user.billing?.address_1,
+          "profilePicture": user.avatar_url,
+          "token": "",
+          "loginAt": Date.now(),
+          "expireTime": Date.now() + 365 * 24 * 60 * 60 * 1000
+        };
+        response = { status: true, data: resData, message: "Đăng nhập thành công !" };
+        saveDataToStorage('user', resData);
+        dispatch(setLogoutTimer(60 * 60 * 1000));
+        dispatch({
+          type: LOGIN,
+          user: resData,
+        });
+      }
+      else {
+        const errorResData = "Đăng nhập thất bại !";
         dispatch({
           type: AUTH_FAILURE,
         });
-        throw new Error(errorResData.message);
+        throw new Error(errorResData);
       }
-      const resData = response.data;
-      saveDataToStorage('user', resData);
-      dispatch(setLogoutTimer(60 * 60 * 1000));
-      dispatch({
-        type: LOGIN,
-        user: resData,
-      });
     } catch (err) {
       throw err;
     }
@@ -127,28 +130,35 @@ export const EditInfo = (phone, address) => {
       type: AUTH_LOADING,
     });
     try {
-      const response = await timeoutPromise(
-        fetch(`${BACKEND_API_URL}/user/${user.userid}`, {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            'auth-token': user.token,
-          },
-          method: 'PATCH',
-          body: JSON.stringify({
-            phone,
-            address,
-          }),
-        }),
-      );
-      if (!response.ok) {
-        const errorResData = await response.json();
+      const userData = {
+        billing: {
+          address_1: address,
+          phone
+        }
+      }
+      let response = await axios.put(`${BACKEND_API_URL}/customers/${user.userid}`, userData, {
+        headers: { 'Authorization': BASIC_AUTH }
+      })
+      if (!response.data || response.data.code) {
         dispatch({
           type: AUTH_FAILURE,
         });
-        Error(errorResData.err);
+        Error(response.data.message);
       }
-
+      await AsyncStorage.removeItem("user");
+      let resData = {
+        "userid": user.userid,
+        "name": user.name,
+        "email": user.email,
+        "password": "1111",
+        "phone": phone,
+        "address": address,
+        "profilePicture": user.profilePicture,
+        "token": "",
+        "loginAt": Date.now(),
+        "expireTime": Date.now() + 365 * 24 * 60 * 60 * 1000
+      };
+      saveDataToStorage('user', resData);
       dispatch({
         type: EDIT_INFO,
         phone,

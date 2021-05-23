@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   Image,
+  Alert,
   Platform,
 } from "react-native";
 import { Modalize } from "react-native-modalize";
@@ -16,6 +17,8 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomText from "../../../components/UI/CustomText";
 import Colors from "../../../utils/Colors";
 import UserComment from "./UserComment";
+import { BACKEND_API_URL, BASIC_AUTH } from "../../../utils/Config";
+const axios = require('axios')
 //import comments from "../../../db/Comments";
 const { width, height } = Dimensions.get("window");
 
@@ -29,6 +32,33 @@ export const Comments = (props) => {
   const item = props.item;
   if (!item.comments) {
     item.comments = [];
+  }
+  const onSendComment = async () => {
+    const data = {
+      product_id: item._id,
+      review: textComment,
+      reviewer: user.name,
+      reviewer_email: user.email,
+      rating: 5,
+      status: "hold"
+    };
+    console.log(`${BACKEND_API_URL}/products/reviews`);
+    try {
+      let response = await axios.post(`${BACKEND_API_URL}/products/reviews`, data, {
+        headers: { 'Authorization': BASIC_AUTH }
+      })
+      Alert.alert(
+        'Chúc mừng !',
+        'Chúng tôi đã nhận được bình luận của bạn, chúc bạn 1 ngày mua sắm vui vẻ',
+        [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ]
+      )
+    } catch (error) {
+      alert(error);
+    } finally {
+      setTextComment("");
+    }
   }
   return (
     <>
@@ -44,45 +74,51 @@ export const Comments = (props) => {
             {Object.keys(user).length === 0 ? (
               <></>
             ) : (
-                <View style={styles.inputContainer}>
-                  <View style={styles.profileContainer}>
-                    <Image
-                      style={styles.profilePic}
-                      source={
-                        user.profilePicture.length === 0
-                          ? require("../../../assets/Images/defaultprofile.jpg")
-                          : { uri: user.profilePicture }
-                      }
+              <View style={styles.inputContainer}>
+                <View style={styles.profileContainer}>
+                  <Image
+                    style={styles.profilePic}
+                    source={
+                      user.profilePicture.length === 0
+                        ? require("../../../assets/Images/defaultprofile.jpg")
+                        : { uri: user.profilePicture }
+                    }
+                  />
+                </View>
+                <View
+                  style={{
+                    justifyContent: "center",
+                    width: "75%",
+                  }}
+                >
+                  <BlurView tint='dark' intensity={10} style={styles.inputBlur}>
+                    <TextInput
+                      value={textComment}
+                      placeholder='Add a public comment...'
+                      style={{ width: "100%" }}
+                      onChangeText={(text) => setTextComment(text)}
                     />
-                  </View>
-                  <View
-                    style={{
-                      justifyContent: "center",
-                      width: "75%",
-                    }}
-                  >
-                    <BlurView tint='dark' intensity={10} style={styles.inputBlur}>
-                      <TextInput
-                        placeholder='Add a public comment...'
-                        style={{ width: "100%" }}
-                        onChangeText={(text) => setTextComment(text)}
-                      />
-                    </BlurView>
-                  </View>
+                  </BlurView>
+                </View>
 
-                  <View
-                    style={{
-                      justifyContent: "center",
-                    }}
+                <View
+                  style={{
+                    justifyContent: "center",
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={onSendComment}
                   >
                     <Entypo
                       name='paper-plane'
                       size={25}
                       color={textComment.length === 0 ? Colors.grey : Colors.blue}
                     />
-                  </View>
+                  </TouchableOpacity>
+
                 </View>
-              )}
+              </View>
+            )}
             {item.comments.map((comment) => (
               <UserComment key={comment.id} comment={comment} />
             ))}

@@ -1,19 +1,24 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Colors from '../../../utils/Colors';
 //Text
 import CustomText from '../../../components/UI/CustomText';
 //PropTypes check
 import PropTypes from 'prop-types';
 
-export const TotalButton = ({ toPayment }) => {
+export const TotalButton = ({ toPayment, isLoading }) => {
   return (
     <View style={styles.total}>
       <TouchableOpacity onPress={toPayment}>
         <View style={styles.buttom}>
-          <CustomText style={{ color: '#fff', fontSize: 16 }}>
-            Tiếp Tục
-          </CustomText>
+          {(isLoading) ? (
+            <ActivityIndicator size='small' color='#fff' />
+          ) : (
+            <CustomText style={{ color: '#fff', fontSize: 16 }}>
+              Đặt hàng
+            </CustomText>
+          )}
+
         </View>
       </TouchableOpacity>
     </View>
@@ -22,13 +27,14 @@ export const TotalButton = ({ toPayment }) => {
 
 TotalButton.propTypes = {
   toPayment: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired
 };
 
 const styles = StyleSheet.create({
   total: {
     width: '100%',
     position: 'absolute',
-    bottom: 20,
+    bottom: 10,
     left: 0,
     paddingHorizontal: 10,
   },

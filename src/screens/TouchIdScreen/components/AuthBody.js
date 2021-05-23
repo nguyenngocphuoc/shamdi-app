@@ -18,12 +18,14 @@ export const AuthBody = () => {
   const switchHandler = async () => {
     setIsEnabled((previousState) => !previousState);
     if (!isEnabled) {
+      const data = JSON.stringify({
+        email: user.email,
+        password: user.password,
+      });
+      console.log(data);
       await SecureStore.setItemAsync(
         secretKey,
-        JSON.stringify({
-          email: user.email,
-          password: user.password,
-        })
+        data
       );
     } else {
       await SecureStore.deleteItemAsync(secretKey);
